@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ITACHIIXT</title>
+  <meta name="description" content="ITACHIIXT AI-powered prediction engine with pattern analysis">
+  <meta name="theme-color" content="#00F5A0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --background: hsl(220, 50%, 5%);
+      --foreground: hsl(210, 30%, 92%);
+      --card: hsl(220, 45%, 10%);
+      --card-foreground: hsl(210, 30%, 92%);
+      --primary: hsl(168, 100%, 48%);
+      --primary-foreground: hsl(220, 50%, 5%);
+      --secondary: hsl(340, 85%, 58%);
+      --secondary-foreground: hsl(0, 0%, 100%);
+      --muted: hsl(220, 30%, 15%);
+      --muted-foreground: hsl(215, 20%, 50%);
+      --accent: hsl(45, 100%, 55%);
+      --accent-foreground: hsl(220, 50%, 5%);
+      --destructive: hsl(349, 100%, 55%);
+      --success: hsl(152, 100%, 45%);
+      --pending: hsl(45, 100%, 55%);
+      --jackpot: hsl(280, 80%, 60%);
+      --border: hsl(220, 20%, 18%);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .font-display { font-family: 'Audiowide', cursive; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    .glass {
+      background: hsla(220, 45%, 10%, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid hsla(220, 20%, 18%, 0.5);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary), var(--accent), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      background-size: 200% 200%;
+      animation: gradient-shift 3s ease infinite;
+    }
+
+    @keyframes gradient-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    @keyframes float-up { 0%{transform:translateY(0) scale(1);opacity:0.4} 100%{transform:translateY(-110vh) scale(1.5);opacity:0} }
+    @keyframes rainbow-border { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    @keyframes spin-slow { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+    @keyframes loader-orbit { 0%{transform:rotate(0deg) translateX(40px) rotate(0deg)} 100%{transform:rotate(360deg) translateX(40px) rotate(-360deg)} }
+    @keyframes loader-pulse { 0%,100%{transform:scale(0.8);opacity:0.5} 50%{transform:scale(1.2);opacity:1} }
+    @keyframes status-glow { 0%,100%{opacity:1} 50%{opacity:0.6} }
+    @keyframes fade-in { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+
+    .animate-fade-in { animation: fade-in 0.5s ease-out; }
+
+    /* Bubbles */
+    .bubbles { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .bubbles span { position: absolute; bottom: -150px; border-radius: 50%; width: 60px; height: 60px; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .ball-purple { background: linear-gradient(135deg, hsla(280,80%,60%,0.8), hsl(280,80%,60%), hsla(280,80%,60%,0.6)); }
+    .ball-red { background: linear-gradient(135deg, hsla(349,100%,55%,0.8), hsl(349,100%,55%), hsla(349,100%,55%,0.6)); }
+    .ball-green { background: linear-gradient(135deg, hsla(152,100%,45%,0.8), hsl(152,100%,45%), hsla(152,100%,45%,0.6)); }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: hsla(220,45%,10%,0.9);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid hsla(220,20%,18%,0.5);
+      padding: 12px 0; z-index: 50;
+      display: flex; justify-content: space-around;
+    }
+    .nav-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      background: none; border: none; padding: 8px; cursor: pointer;
+      color: var(--muted-foreground); font-size: 10px; font-family: 'Outfit', sans-serif;
+      transition: color 0.3s;
+    }
+    .nav-btn.active { color: var(--primary); }
+    .nav-btn:hover { color: var(--primary); }
+
+    .server-card {
+      position: relative; padding: 16px; background: hsla(220,45%,10%,0.4);
+      border: 2px solid transparent; border-radius: 16px; cursor: pointer;
+      transition: all 0.3s; text-align: center; backdrop-filter: blur(8px);
+    }
+    .server-card:hover { background: hsla(220,45%,10%,0.6); }
+    .server-card.active-primary { border-color: var(--primary); }
+    .server-card.active-accent { border-color: var(--accent); }
+    .server-card.active-secondary { border-color: var(--secondary); }
+
+    .server-icon {
+      width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 8px;
+      display: flex; align-items: center; justify-content: center; color: var(--primary-foreground);
+    }
+    .si-1 { background: linear-gradient(135deg, var(--primary), hsla(168,100%,48%,0.6)); }
+    .si-2 { background: linear-gradient(135deg, var(--accent), hsla(45,100%,55%,0.6)); }
+    .si-3 { background: linear-gradient(135deg, var(--secondary), hsla(340,85%,58%,0.6)); }
+
+    .active-dot {
+      position: absolute; top: 8px; right: 8px; width: 8px; height: 8px;
+      border-radius: 50%; animation: status-glow 1.5s infinite; display: none;
+    }
+    .dot-1 { background: var(--primary); }
+    .dot-2 { background: var(--accent); }
+    .dot-3 { background: var(--secondary); }
+
+    .loader-container { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 32px 0; }
+    .loader-ring { position: relative; width: 96px; height: 96px; }
+    .loader-ring .outer {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid transparent; border-top-color: var(--primary); border-right-color: var(--accent);
+      animation: spin-slow 1.5s linear infinite;
+    }
+    .loader-ring .inner {
+      position: absolute; inset: 8px; border-radius: 50%;
+      border: 2px solid transparent; border-bottom-color: var(--secondary); border-left-color: var(--primary);
+      animation: spin-slow 1s linear infinite reverse;
+    }
+    .loader-ring .pulse {
+      position: absolute; inset: 24px; border-radius: 50%;
+      background: hsla(168,100%,48%,0.2); animation: loader-pulse 1s ease-in-out infinite;
+    }
+    .orbit-dot {
+      position: absolute; width: 12px; height: 12px; border-radius: 50%;
+      top: 50%; left: 50%; margin: -6px 0 0 -6px;
+    }
+    .od-0 { background: var(--primary); animation: loader-orbit 1.2s 0s linear infinite; }
+    .od-1 { background: var(--accent); animation: loader-orbit 1.5s 0.2s linear infinite; }
+    .od-2 { background: var(--secondary); animation: loader-orbit 1.8s 0.4s linear infinite; }
+
+    .login-input {
+      width: 100%; padding: 16px; background: hsla(220,30%,15%,0.5);
+      border: 1px solid hsla(220,20%,18%,0.5); border-radius: 16px;
+      font-size: 1.1rem; text-align: center; letter-spacing: 4px;
+      color: var(--foreground); outline: none; transition: all 0.3s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .login-input::placeholder { color: var(--muted-foreground); }
+    .login-input:focus { border-color: var(--primary); box-shadow: 0 0 20px hsla(168,100%,48%,0.3); }
+
+    .btn-primary {
+      width: 100%; padding: 16px; border: none; border-radius: 50px;
+      font-size: 1.1rem; font-weight: bold; color: var(--primary-foreground);
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      cursor: pointer; transition: all 0.3s; font-family: 'Audiowide', cursive;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-telegram {
+      width: 100%; padding: 16px; border: none; border-radius: 50px;
+      font-size: 1.1rem; font-weight: bold; color: var(--primary-foreground);
+      background: linear-gradient(135deg, hsl(200,100%,40%), hsl(200,100%,48%));
+      cursor: pointer; transition: all 0.3s; font-family: 'Audiowide', cursive;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      text-decoration: none; margin-top: 16px;
+    }
+    .btn-telegram:hover { opacity: 0.9; transform: scale(1.02); }
+
+    .icon-btn {
+      background: hsla(220,30%,15%,0.5); border: none; padding: 8px; border-radius: 50%;
+      cursor: pointer; color: var(--foreground); transition: all 0.3s;
+      width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+      position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    }
+    .icon-btn:hover { background: var(--muted); }
+
+    .container { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px; }
+
+    .webview-wrap { position: fixed; inset: 0; z-index: 10; padding-bottom: 72px; }
+    .webview-wrap iframe { width: 100%; height: 100%; border: 0; }
+    .search-bar-wrap { position: fixed; top: 16px; left: 16px; right: 16px; z-index: 20; display: flex; gap: 8px; }
+    .search-input {
+      flex: 1; padding: 12px 16px; background: hsla(220,45%,10%,0.9); backdrop-filter: blur(8px);
+      border: 1px solid hsla(220,20%,18%,0.5); border-radius: 16px; font-size: 14px;
+      color: var(--foreground); outline: none; font-family: 'Outfit', sans-serif;
+    }
+    .search-input:focus { border-color: var(--primary); }
+    .search-go {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: var(--primary-foreground); border: none; padding: 12px; border-radius: 16px; cursor: pointer;
+    }
+    .unhide-btn {
+      position: fixed; top: 16px; right: 16px; z-index: 20;
+      background: hsla(220,45%,10%,0.9); backdrop-filter: blur(8px);
+      border: none; padding: 12px; border-radius: 50%; cursor: pointer; color: var(--primary);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none;
+    }
+
+    .hidden { display: none !important; }
+    svg { display: inline-block; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<div class="bubbles" id="bubbles"></div>
+
+<!-- LOGIN -->
+<div id="loginPage" class="page active">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;z-index:1">
+    <div class="glass animate-fade-in" style="width:100%;max-width:400px;padding:32px">
+      <h1 class="gradient-text font-display" style="font-size:1.8rem;text-align:center;margin-bottom:8px">ITACHIIXT</h1>
+      <p style="text-align:center;color:var(--muted-foreground);font-size:0.9rem;margin-bottom:32px">Enter your access key to continue</p>
+      <form id="loginForm">
+        <input type="text" id="keyInput" class="login-input" placeholder="ENTER KEY" autocomplete="off">
+        <p id="loginError" style="color:var(--destructive);text-align:center;font-size:0.85rem;margin-top:12px;font-weight:500;display:none"></p>
+        <button type="submit" id="loginBtn" class="btn-primary" style="margin-top:24px">UNLOCK</button>
+      </form>
+      <a href="https://t.me/ITACHIIXT" target="_blank" rel="noopener noreferrer" class="btn-telegram">TELEGRAM</a>
+      <p style="text-align:center;font-size:0.75rem;color:var(--muted-foreground);margin-top:24px">TELEGRAM USERNAME BY TEAM - ITACHIIXT</p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardPage" class="page">
+  <div style="position:relative;z-index:1;padding-bottom:96px;min-height:100vh">
+    <div class="container">
+      <header class="glass animate-fade-in" style="text-align:center;padding:20px;margin-bottom:20px;position:relative">
+        <button class="icon-btn" id="logoutBtn" title="Logout">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" x2="12" y1="2" y2="12"/></svg>
+        </button>
+        <h1 class="gradient-text font-display" style="font-size:1.25rem">ITACHIIXT</h1>
+      </header>
+
+      <div class="glass animate-fade-in" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;margin-bottom:20px">
+        <div style="font-size:0.9rem;font-weight:600;color:var(--muted-foreground)">WINGO NO - <span id="period" class="font-mono" style="color:var(--foreground)">--</span></div>
+        <div id="timer" class="font-mono" style="font-size:1.8rem;font-weight:bold;color:var(--accent)">00</div>
+      </div>
+
+      <section class="glass animate-fade-in" style="padding:16px 20px;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;text-align:center">
+          <div><span style="font-size:0.6rem;color:var(--muted-foreground);display:block;margin-bottom:4px">TOTAL</span><span id="totalStat" class="font-mono" style="font-size:0.9rem;font-weight:bold">0</span></div>
+          <div><span style="font-size:0.6rem;color:var(--muted-foreground);display:block;margin-bottom:4px">VICTORY</span><span id="winStat" class="font-mono" style="font-size:0.9rem;font-weight:bold;color:var(--success)">0</span></div>
+          <div><span style="font-size:0.6rem;color:var(--muted-foreground);display:block;margin-bottom:4px">DEFEAT</span><span id="lossStat" class="font-mono" style="font-size:0.9rem;font-weight:bold;color:var(--destructive)">0</span></div>
+          <div><span style="font-size:0.6rem;color:var(--muted-foreground);display:block;margin-bottom:4px">JACKPOT</span><span id="jackpotStat" class="font-mono" style="font-size:0.9rem;font-weight:bold;color:var(--jackpot)">0</span></div>
+          <div><span style="font-size:0.6rem;color:var(--muted-foreground);display:block;margin-bottom:4px">WIN RATE</span><span id="rateStat" class="font-mono" style="font-size:0.9rem;font-weight:bold;color:var(--primary)">0.0%</span></div>
+        </div>
+      </section>
+
+      <section class="glass animate-fade-in" style="padding:24px;margin-bottom:20px;text-align:center">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px" id="serverGrid">
+          <div class="server-card active-primary" data-server="server1">
+            <div class="active-dot dot-1" id="dot1" style="display:block"></div>
+            <div class="server-icon si-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+            </div>
+            <p class="font-display" style="font-size:0.6rem;color:var(--foreground);letter-spacing:2px">AI PATTERN</p>
+          </div>
+          <div class="server-card" data-server="server2">
+            <div class="active-dot dot-2" id="dot2"></div>
+            <div class="server-icon si-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0 1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08A2.5 2.5 0 0 0 12 19.5a2.5 2.5 0 0 0 2.32.64 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0 1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 12 4.5"/></svg>
+            </div>
+            <p class="font-display" style="font-size:0.6rem;color:var(--foreground);letter-spacing:2px">API ENGINE</p>
+          </div>
+          <div class="server-card" data-server="server3">
+            <div class="active-dot dot-3" id="dot3"></div>
+            <div class="server-icon si-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+            </div>
+            <p class="font-display" style="font-size:0.6rem;color:var(--foreground);letter-spacing:2px">SMART TRADE</p>
+          </div>
+        </div>
+
+        <div id="predictionArea"></div>
+        <div id="loadingArea" class="hidden">
+          <div class="loader-container">
+            <div class="loader-ring">
+              <div class="outer"></div>
+              <div class="inner"></div>
+              <div class="pulse"></div>
+              <div class="orbit-dot od-0"></div>
+              <div class="orbit-dot od-1"></div>
+              <div class="orbit-dot od-2"></div>
+            </div>
+            <p id="loadingLabel" class="font-display" style="font-size:0.85rem;color:var(--primary);letter-spacing:3px">ANALYZING...</p>
+          </div>
+        </div>
+        <div id="resultArea" class="hidden">
+          <div style="padding:24px 0;display:flex;justify-content:center;align-items:center;gap:24px">
+            <div style="position:relative;width:80px;height:80px">
+              <div style="position:absolute;inset:0;border-radius:50%;padding:3px;background:linear-gradient(90deg,#ff0000,#ff8000,#ffff00,#80ff00,#00ff00,#00ff80,#00ffff,#0080ff,#0000ff,#8000ff,#ff00ff,#ff0080,#ff0000);background-size:400% 400%;animation:rainbow-border 3s ease infinite">
+                <div id="sideBall" class="font-mono" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;background:var(--card);color:var(--primary)">B</div>
+              </div>
+            </div>
+            <div id="numberBall" class="font-mono ball-purple" style="width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:bold;color:var(--foreground);box-shadow:0 4px 15px rgba(0,0,0,0.3)">5</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- WEBSITE -->
+<div id="websitePage" class="page">
+  <div id="webviewWrap" class="webview-wrap hidden">
+    <iframe id="webviewFrame" title="Webview" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-presentation" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+  </div>
+  <form id="searchBarForm" class="search-bar-wrap">
+    <input type="text" id="searchInput" class="search-input" placeholder="Enter URL or search" autocomplete="off">
+    <button type="submit" class="search-go">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
+  </form>
+  <button id="unhideBtn" class="unhide-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+  </button>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav id="bottomNav" class="bottom-nav hidden">
+  <button class="nav-btn active" data-page="dashboard">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="nav-btn" data-page="website">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <span>Website</span>
+  </button>
+</nav>
+
+<script>
+const FIREBASE_DATABASE_URL = 'https://shadow-93ea0-default-rtdb.firebaseio.com';
+const HISTORY_API = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
+const SERVER_OFFSETS = { server1: 0, server2: 17389, server3: 39821 };
+const LOADING_LABELS = ['ANALYZING...','PROCESSING...','CALCULATING...','PREDICTING...'];
+
+function mulberry32(seed) {
+  let t = (seed + 0x6d2b79f5) | 0;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+function getPrediction(period, server) {
+  const periodNum = parseInt(period.slice(-5), 10);
+  const seed = periodNum + (SERVER_OFFSETS[server] || 0);
+  const r1 = mulberry32(seed);
+  const side = r1 > 0.5 ? 'BIG' : 'SMALL';
+  const r2 = mulberry32(seed + 7777);
+  const pool = side === 'BIG' ? [5,6,7,8,9] : [0,1,2,3,4];
+  return { side, number: pool[Math.floor(r2 * pool.length)] };
+}
+
+function getPeriod() {
+  const u = new Date();
+  const y = u.getUTCFullYear(), m = String(u.getUTCMonth()+1).padStart(2,'0'), d = String(u.getUTCDate()).padStart(2,'0');
+  return `${y}${m}${d}1000${10001 + u.getUTCHours()*60 + u.getUTCMinutes()}`;
+}
+
+function getRemainingSeconds() { return 60 - new Date().getUTCSeconds(); }
+
+function getBallColor(n) { if ([0,5].includes(n)) return 'purple'; if ([2,4,6,8].includes(n)) return 'red'; return 'green'; }
+
+function getDeviceId() {
+  const stored = localStorage.getItem('deviceId');
+  if (stored) return stored;
+  const c = document.createElement('canvas'), ctx = c.getContext('2d');
+  if (ctx) { ctx.textBaseline='top'; ctx.font='14px Arial'; ctx.fillText('device-fingerprint',2,2); }
+  const fp = [navigator.userAgent,navigator.language,screen.width,screen.height,screen.colorDepth,new Date().getTimezoneOffset(),c.toDataURL(),navigator.hardwareConcurrency||'unknown'].join('|');
+  let h=0; for(let i=0;i<fp.length;i++){h=((h<<5)-h)+fp.charCodeAt(i);h=h&h;}
+  const id=`DEV_${Math.abs(h).toString(36).toUpperCase()}_${Date.now().toString(36).toUpperCase()}`;
+  localStorage.setItem('deviceId',id); return id;
+}
+
+async function validateKey(inputKey) {
+  try {
+    const deviceId = getDeviceId();
+    const res = await fetch(`${FIREBASE_DATABASE_URL}/keys.json`);
+    const keys = await res.json();
+    if (!keys) return {valid:false,message:'No keys found in database'};
+    for (const keyId in keys) {
+      const kd = keys[keyId];
+      if (kd.key === inputKey || keyId === inputKey) {
+        if (kd.isActive === false) return {valid:false,message:'Key has been deactivated'};
+        const exp = kd.expiresAt || kd.expiry;
+        if (exp && Date.now() > exp) return {valid:false,message:'Key has expired'};
+        if (kd.boundDevice) { if (kd.boundDevice !== deviceId) return {valid:false,message:'Key is already bound to another device'}; }
+        else { await fetch(`${FIREBASE_DATABASE_URL}/keys/${keyId}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({boundDevice:deviceId,boundAt:Date.now()})}); }
+        return {valid:true};
+      }
+    }
+    return {valid:false,message:'Invalid key'};
+  } catch { return {valid:false,message:'Connection error. Please try again.'}; }
+}
+
+// State
+let historyData = [];
+let selectedServer = localStorage.getItem('selectedServer') || 'server1';
+let currentPeriod = '';
+let lastPredictedPeriod = '';
+let isLoading = false;
+let loadingInterval = null;
+
+// Bubbles
+const bubblesEl = document.getElementById('bubbles');
+[
+  {left:'5%',dur:'18s',del:'0s',col:'168,100%,48%'},
+  {left:'20%',dur:'22s',del:'2s',col:'340,85%,58%'},
+  {left:'35%',dur:'26s',del:'4s',col:'280,80%,60%'},
+  {left:'50%',dur:'20s',del:'1s',col:'45,100%,55%'},
+  {left:'65%',dur:'24s',del:'3s',col:'220,80%,55%'},
+  {left:'80%',dur:'30s',del:'5s',col:'168,70%,50%'},
+].forEach(b => {
+  const s = document.createElement('span');
+  s.style.cssText = `left:${b.left};background:radial-gradient(circle,hsla(${b.col},0.3),hsla(${b.col},0.05));animation:float-up ${b.dur} ${b.del} infinite ease-in`;
+  bubblesEl.appendChild(s);
+});
+
+// Navigation
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+  document.getElementById(name + 'Page').classList.add('active');
+  const navBtn = document.querySelector(`.nav-btn[data-page="${name}"]`);
+  if (navBtn) navBtn.classList.add('active');
+}
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => showPage(btn.dataset.page));
+});
+
+// Login
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const key = document.getElementById('keyInput').value.trim().toUpperCase();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  if (!key) { err.textContent = '* PLEASE ENTER A KEY *'; err.style.display = 'block'; return; }
+  btn.textContent = 'VERIFYING...'; btn.disabled = true; err.style.display = 'none';
+  const result = await validateKey(key);
+  if (result.valid) {
+    localStorage.removeItem('historyData'); historyData = [];
+    sessionStorage.setItem('isLoggedIn', 'true'); sessionStorage.setItem('userKey', key);
+    document.getElementById('bottomNav').classList.remove('hidden');
+    showPage('dashboard'); initDashboard();
+  } else {
+    err.textContent = `* ${(result.message||'INVALID KEY').toUpperCase()} *`; err.style.display = 'block';
+    btn.textContent = 'UNLOCK'; btn.disabled = false;
+  }
+});
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.clear(); localStorage.removeItem('historyData'); location.reload();
+});
+
+// Server selection
+const serverActiveClasses = { server1: 'active-primary', server2: 'active-accent', server3: 'active-secondary' };
+document.getElementById('serverGrid').addEventListener('click', function(e) {
+  const card = e.target.closest('.server-card');
+  if (!card) return;
+  selectedServer = card.dataset.server;
+  localStorage.setItem('selectedServer', selectedServer);
+  document.querySelectorAll('.server-card').forEach(c => {
+    c.className = 'server-card' + (c.dataset.server === selectedServer ? ` ${serverActiveClasses[selectedServer]}` : '');
+  });
+  document.getElementById('dot1').style.display = selectedServer === 'server1' ? 'block' : 'none';
+  document.getElementById('dot2').style.display = selectedServer === 'server2' ? 'block' : 'none';
+  document.getElementById('dot3').style.display = selectedServer === 'server3' ? 'block' : 'none';
+  if (lastPredictedPeriod === currentPeriod) {
+    showResult(getPrediction(currentPeriod, selectedServer));
+  }
+});
+
+// Show result
+function showResult(p) {
+  const sb = document.getElementById('sideBall');
+  sb.textContent = p.side === 'BIG' ? 'B' : 'S';
+  sb.style.color = p.side === 'BIG' ? 'var(--primary)' : 'var(--accent)';
+  const nb = document.getElementById('numberBall');
+  nb.textContent = p.number;
+  nb.className = `font-mono ball-${getBallColor(p.number)}`;
+  nb.style.cssText = 'width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:bold;color:var(--foreground);box-shadow:0 4px 15px rgba(0,0,0,0.3)';
+}
+
+// Auto prediction
+function runAutoPrediction(period) {
+  if (isLoading || lastPredictedPeriod === period) return;
+  isLoading = true;
+  document.getElementById('predictionArea').classList.add('hidden');
+  document.getElementById('loadingArea').classList.remove('hidden');
+  document.getElementById('resultArea').classList.add('hidden');
+  let step = 0;
+  document.getElementById('loadingLabel').textContent = LOADING_LABELS[0];
+  loadingInterval = setInterval(() => {
+    step = (step + 1) % 4;
+    document.getElementById('loadingLabel').textContent = LOADING_LABELS[step];
+  }, 1250);
+
+  setTimeout(() => {
+    clearInterval(loadingInterval);
+    const p = getPrediction(period, selectedServer);
+    lastPredictedPeriod = period;
+    isLoading = false;
+    document.getElementById('loadingArea').classList.add('hidden');
+    showResult(p);
+    document.getElementById('resultArea').classList.remove('hidden');
+
+    const entry = { period, predicted: p.side, predictedNum: p.number, status: 'PENDING', server: selectedServer };
+    historyData.unshift(entry);
+    historyData = historyData.slice(0, 100);
+    localStorage.setItem('historyData', JSON.stringify(historyData));
+    updateStats();
+  }, 5000);
+}
+
+// Timer & period
+function updateTimer() {
+  const newPeriod = getPeriod();
+  document.getElementById('timer').textContent = String(getRemainingSeconds()).padStart(2, '0');
+  document.getElementById('period').textContent = newPeriod.slice(-5);
+  if (newPeriod !== currentPeriod) {
+    currentPeriod = newPeriod;
+    lastPredictedPeriod = '';
+    // Auto predict after period change
+    setTimeout(() => runAutoPrediction(currentPeriod), 100);
+  }
+}
+
+// Stats
+function updateStats() {
+  const completed = historyData.filter(h => h.status !== 'PENDING');
+  const wins = historyData.filter(h => h.status === 'VICTORY').length;
+  const losses = historyData.filter(h => h.status === 'DEFEAT').length;
+  const jackpots = historyData.filter(h => h.status === 'JACKPOT').length;
+  const total = completed.length;
+  const rate = total > 0 ? (((wins+jackpots)/total)*100).toFixed(1) : '0.0';
+  document.getElementById('totalStat').textContent = total;
+  document.getElementById('winStat').textContent = wins;
+  document.getElementById('lossStat').textContent = losses;
+  document.getElementById('jackpotStat').textContent = jackpots;
+  document.getElementById('rateStat').textContent = rate + '%';
+}
+
+// Check results
+async function checkResultsLoop() {
+  try {
+    const res = await fetch(HISTORY_API);
+    const data = await res.json();
+    if (!data?.data?.list) return;
+    const results = data.data.list;
+    let updated = false;
+    historyData = historyData.map(item => {
+      if (item.status !== 'PENDING') return item;
+      const r = results.find(x => x.issueNumber === item.period);
+      if (r) {
+        const actualNum = parseInt(r.number, 10);
+        const actualSide = actualNum >= 5 ? 'BIG' : 'SMALL';
+        updated = true;
+        return { ...item, actualNum, status: item.predictedNum === actualNum ? 'JACKPOT' : item.predicted === actualSide ? 'VICTORY' : 'DEFEAT' };
+      }
+      return item;
+    });
+    if (updated) { localStorage.setItem('historyData', JSON.stringify(historyData)); updateStats(); }
+  } catch {}
+}
+
+// Website page
+const searchBarForm = document.getElementById('searchBarForm');
+const searchInputEl = document.getElementById('searchInput');
+const unhideBtnEl = document.getElementById('unhideBtn');
+const webviewWrap = document.getElementById('webviewWrap');
+const webviewFrame = document.getElementById('webviewFrame');
+
+const savedUrl = localStorage.getItem('lastWebviewUrl');
+if (savedUrl) { webviewFrame.src = savedUrl; webviewWrap.classList.remove('hidden'); searchBarForm.classList.add('hidden'); unhideBtnEl.style.display = 'block'; }
+
+searchBarForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  let q = searchInputEl.value.trim(); if (!q) return;
+  if (!q.startsWith('http://') && !q.startsWith('https://')) {
+    q = q.includes('.') && !q.includes(' ') ? 'https://' + q : 'https://www.google.com/search?q=' + encodeURIComponent(q);
+  }
+  webviewFrame.src = q; webviewWrap.classList.remove('hidden');
+  localStorage.setItem('lastWebviewUrl', q);
+  searchBarForm.classList.add('hidden'); unhideBtnEl.style.display = 'block'; searchInputEl.value = '';
+});
+
+unhideBtnEl.addEventListener('click', () => { searchBarForm.classList.remove('hidden'); unhideBtnEl.style.display = 'none'; });
+
+// Init
+function initDashboard() {
+  const saved = localStorage.getItem('historyData');
+  if (saved) historyData = JSON.parse(saved);
+  selectedServer = localStorage.getItem('selectedServer') || 'server1';
+  document.querySelectorAll('.server-card').forEach(c => {
+    c.className = 'server-card' + (c.dataset.server === selectedServer ? ` ${serverActiveClasses[selectedServer]}` : '');
+  });
+  document.getElementById('dot1').style.display = selectedServer === 'server1' ? 'block' : 'none';
+  document.getElementById('dot2').style.display = selectedServer === 'server2' ? 'block' : 'none';
+  document.getElementById('dot3').style.display = selectedServer === 'server3' ? 'block' : 'none';
+  currentPeriod = getPeriod();
+  updateTimer(); updateStats();
+  setInterval(updateTimer, 1000);
+  setInterval(checkResultsLoop, 5000);
+  // Auto predict on init
+  runAutoPrediction(currentPeriod);
+}
+
+if (sessionStorage.getItem('isLoggedIn') === 'true') {
+  document.getElementById('bottomNav').classList.remove('hidden');
+  showPage('dashboard'); initDashboard();
+}
+</script>
+</body>
+</html>

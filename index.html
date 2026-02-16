@@ -73,7 +73,6 @@
 
     .animate-fade-in { animation: fade-in 0.5s ease-out; }
 
-    /* Bubbles */
     .bubbles { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
     .bubbles span { position: absolute; bottom: -150px; border-radius: 50%; width: 60px; height: 60px; }
 
@@ -83,6 +82,10 @@
     .ball-purple { background: linear-gradient(135deg, hsla(280,80%,60%,0.8), hsl(280,80%,60%), hsla(280,80%,60%,0.6)); }
     .ball-red { background: linear-gradient(135deg, hsla(349,100%,55%,0.8), hsl(349,100%,55%), hsla(349,100%,55%,0.6)); }
     .ball-green { background: linear-gradient(135deg, hsla(152,100%,45%,0.8), hsl(152,100%,45%), hsla(152,100%,45%,0.6)); }
+
+    .si-primary { background: linear-gradient(135deg, hsl(168,100%,48%), hsla(168,100%,48%,0.6)); }
+    .si-accent { background: linear-gradient(135deg, hsl(45,100%,55%), hsla(45,100%,55%,0.6)); }
+    .si-secondary { background: linear-gradient(135deg, hsl(340,85%,58%), hsla(340,85%,58%,0.6)); }
 
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0;
@@ -115,9 +118,6 @@
       width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 8px;
       display: flex; align-items: center; justify-content: center; color: var(--primary-foreground);
     }
-    .si-1 { background: linear-gradient(135deg, var(--primary), hsla(168,100%,48%,0.6)); }
-    .si-2 { background: linear-gradient(135deg, var(--accent), hsla(45,100%,55%,0.6)); }
-    .si-3 { background: linear-gradient(135deg, var(--secondary), hsla(340,85%,58%,0.6)); }
 
     .active-dot {
       position: absolute; top: 8px; right: 8px; width: 8px; height: 8px;
@@ -150,6 +150,12 @@
     .od-0 { background: var(--primary); animation: loader-orbit 1.2s 0s linear infinite; }
     .od-1 { background: var(--accent); animation: loader-orbit 1.5s 0.2s linear infinite; }
     .od-2 { background: var(--secondary); animation: loader-orbit 1.8s 0.4s linear infinite; }
+
+    .rainbow-ring {
+      background: linear-gradient(90deg,#ff0000,#ff8000,#ffff00,#80ff00,#00ff00,#00ff80,#00ffff,#0080ff,#0000ff,#8000ff,#ff00ff,#ff0080,#ff0000);
+      background-size: 400% 400%;
+      animation: rainbow-border 3s ease infinite;
+    }
 
     .login-input {
       width: 100%; padding: 16px; background: hsla(220,30%,15%,0.5);
@@ -265,21 +271,21 @@
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px" id="serverGrid">
           <div class="server-card active-primary" data-server="server1">
             <div class="active-dot dot-1" id="dot1" style="display:block"></div>
-            <div class="server-icon si-1">
+            <div class="server-icon si-primary">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
             </div>
             <p class="font-display" style="font-size:0.6rem;color:var(--foreground);letter-spacing:2px">AI PATTERN</p>
           </div>
           <div class="server-card" data-server="server2">
             <div class="active-dot dot-2" id="dot2"></div>
-            <div class="server-icon si-2">
+            <div class="server-icon si-accent">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4.5a2.5 2.5 0 0 0-4.96-.46 2.5 2.5 0 0 0-1.98 3 2.5 2.5 0 0 0 1.32 4.24 3 3 0 0 0 .34 5.58 2.5 2.5 0 0 0 2.96 3.08A2.5 2.5 0 0 0 12 19.5a2.5 2.5 0 0 0 2.32.64 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0 1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 12 4.5"/></svg>
             </div>
             <p class="font-display" style="font-size:0.6rem;color:var(--foreground);letter-spacing:2px">API ENGINE</p>
           </div>
           <div class="server-card" data-server="server3">
             <div class="active-dot dot-3" id="dot3"></div>
-            <div class="server-icon si-3">
+            <div class="server-icon si-secondary">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
             </div>
             <p class="font-display" style="font-size:0.6rem;color:var(--foreground);letter-spacing:2px">SMART TRADE</p>
@@ -303,7 +309,7 @@
         <div id="resultArea" class="hidden">
           <div style="padding:24px 0;display:flex;justify-content:center;align-items:center;gap:24px">
             <div style="position:relative;width:80px;height:80px">
-              <div style="position:absolute;inset:0;border-radius:50%;padding:3px;background:linear-gradient(90deg,#ff0000,#ff8000,#ffff00,#80ff00,#00ff00,#00ff80,#00ffff,#0080ff,#0000ff,#8000ff,#ff00ff,#ff0080,#ff0000);background-size:400% 400%;animation:rainbow-border 3s ease infinite">
+              <div class="rainbow-ring" style="position:absolute;inset:0;border-radius:50%;padding:3px">
                 <div id="sideBall" class="font-mono" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;background:var(--card);color:var(--primary)">B</div>
               </div>
             </div>
@@ -349,6 +355,7 @@ const HISTORY_API = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssu
 const SERVER_OFFSETS = { server1: 0, server2: 17389, server3: 39821 };
 const LOADING_LABELS = ['ANALYZING...','PROCESSING...','CALCULATING...','PREDICTING...'];
 
+// === Deterministic PRNG ===
 function mulberry32(seed) {
   let t = (seed + 0x6d2b79f5) | 0;
   t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -356,16 +363,52 @@ function mulberry32(seed) {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 
-function getPrediction(period, server) {
-  const periodNum = parseInt(period.slice(-5), 10);
-  const seed = periodNum + (SERVER_OFFSETS[server] || 0);
-  const r1 = mulberry32(seed);
-  const side = r1 > 0.5 ? 'BIG' : 'SMALL';
-  const r2 = mulberry32(seed + 7777);
-  const pool = side === 'BIG' ? [5,6,7,8,9] : [0,1,2,3,4];
-  return { side, number: pool[Math.floor(r2 * pool.length)] };
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
 }
 
+// === AI Pattern-based Prediction (deterministic, same on all devices) ===
+function getAIPrediction(period, server, historyList) {
+  const periodNum = parseInt(period.slice(-5), 10);
+  const serverOffset = SERVER_OFFSETS[server] || 0;
+
+  const recentResults = (historyList || []).slice(0, 10).map(item => parseInt(item.number, 10));
+
+  let bigCount = 0, smallCount = 0, sumNumbers = 0, streak = 0, lastSide = null;
+  for (const num of recentResults) {
+    const side = num >= 5 ? 'BIG' : 'SMALL';
+    sumNumbers += num;
+    if (side === 'BIG') bigCount++; else smallCount++;
+    if (lastSide === side) streak++; else { streak = 1; lastSide = side; }
+  }
+
+  const historyHash = recentResults.length > 0 ? hashString(recentResults.join(',')) : 0;
+  const combinedSeed = periodNum + serverOffset + historyHash;
+
+  const patternScore = mulberry32(combinedSeed);
+  const numberSeed = mulberry32(combinedSeed + 7777);
+
+  let bigProbability = 0.5;
+  if (recentResults.length > 0) {
+    if (streak >= 3 && lastSide === 'BIG') bigProbability -= 0.15;
+    else if (streak >= 3 && lastSide === 'SMALL') bigProbability += 0.15;
+    const total = bigCount + smallCount;
+    if (total > 0) { const bigRatio = bigCount / total; if (bigRatio > 0.7) bigProbability -= 0.1; else if (bigRatio < 0.3) bigProbability += 0.1; }
+    if (recentResults.length > 0) { const avg = sumNumbers / recentResults.length; if (avg > 6) bigProbability -= 0.05; else if (avg < 3) bigProbability += 0.05; }
+  }
+
+  const side = patternScore < bigProbability ? 'BIG' : 'SMALL';
+  const pool = side === 'BIG' ? [5,6,7,8,9] : [0,1,2,3,4];
+  const number = pool[Math.floor(numberSeed * pool.length)];
+  return { side, number };
+}
+
+// === Utility Functions ===
 function getPeriod() {
   const u = new Date();
   const y = u.getUTCFullYear(), m = String(u.getUTCMonth()+1).padStart(2,'0'), d = String(u.getUTCDate()).padStart(2,'0');
@@ -408,15 +451,25 @@ async function validateKey(inputKey) {
   } catch { return {valid:false,message:'Connection error. Please try again.'}; }
 }
 
-// State
+async function fetchHistory() {
+  try {
+    const res = await fetch(HISTORY_API);
+    const data = await res.json();
+    if (data?.data?.list) return data.data.list;
+    return [];
+  } catch { return []; }
+}
+
+// === State ===
 let historyData = [];
+let apiHistoryCache = [];
 let selectedServer = localStorage.getItem('selectedServer') || 'server1';
 let currentPeriod = '';
 let lastPredictedPeriod = '';
 let isLoading = false;
 let loadingInterval = null;
 
-// Bubbles
+// === Bubbles ===
 const bubblesEl = document.getElementById('bubbles');
 [
   {left:'5%',dur:'18s',del:'0s',col:'168,100%,48%'},
@@ -431,7 +484,7 @@ const bubblesEl = document.getElementById('bubbles');
   bubblesEl.appendChild(s);
 });
 
-// Navigation
+// === Navigation ===
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
@@ -443,7 +496,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => showPage(btn.dataset.page));
 });
 
-// Login
+// === Login ===
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const key = document.getElementById('keyInput').value.trim().toUpperCase();
@@ -463,12 +516,12 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   }
 });
 
-// Logout
+// === Logout ===
 document.getElementById('logoutBtn').addEventListener('click', () => {
   sessionStorage.clear(); localStorage.removeItem('historyData'); location.reload();
 });
 
-// Server selection
+// === Server Selection ===
 const serverActiveClasses = { server1: 'active-primary', server2: 'active-accent', server3: 'active-secondary' };
 document.getElementById('serverGrid').addEventListener('click', function(e) {
   const card = e.target.closest('.server-card');
@@ -481,12 +534,12 @@ document.getElementById('serverGrid').addEventListener('click', function(e) {
   document.getElementById('dot1').style.display = selectedServer === 'server1' ? 'block' : 'none';
   document.getElementById('dot2').style.display = selectedServer === 'server2' ? 'block' : 'none';
   document.getElementById('dot3').style.display = selectedServer === 'server3' ? 'block' : 'none';
-  if (lastPredictedPeriod === currentPeriod) {
-    showResult(getPrediction(currentPeriod, selectedServer));
+  if (lastPredictedPeriod === currentPeriod && !isLoading) {
+    showResult(getAIPrediction(currentPeriod, selectedServer, apiHistoryCache));
   }
 });
 
-// Show result
+// === Show Result ===
 function showResult(p) {
   const sb = document.getElementById('sideBall');
   sb.textContent = p.side === 'BIG' ? 'B' : 'S';
@@ -497,13 +550,18 @@ function showResult(p) {
   nb.style.cssText = 'width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:bold;color:var(--foreground);box-shadow:0 4px 15px rgba(0,0,0,0.3)';
 }
 
-// Auto prediction
-function runAutoPrediction(period) {
+// === Auto Prediction ===
+async function runAutoPrediction(period) {
   if (isLoading || lastPredictedPeriod === period) return;
   isLoading = true;
   document.getElementById('predictionArea').classList.add('hidden');
   document.getElementById('loadingArea').classList.remove('hidden');
   document.getElementById('resultArea').classList.add('hidden');
+
+  // Fetch fresh history for pattern analysis
+  const freshHistory = await fetchHistory();
+  if (freshHistory.length > 0) apiHistoryCache = freshHistory;
+
   let step = 0;
   document.getElementById('loadingLabel').textContent = LOADING_LABELS[0];
   loadingInterval = setInterval(() => {
@@ -513,7 +571,7 @@ function runAutoPrediction(period) {
 
   setTimeout(() => {
     clearInterval(loadingInterval);
-    const p = getPrediction(period, selectedServer);
+    const p = getAIPrediction(period, selectedServer, apiHistoryCache);
     lastPredictedPeriod = period;
     isLoading = false;
     document.getElementById('loadingArea').classList.add('hidden');
@@ -528,7 +586,7 @@ function runAutoPrediction(period) {
   }, 5000);
 }
 
-// Timer & period
+// === Timer & Period ===
 function updateTimer() {
   const newPeriod = getPeriod();
   document.getElementById('timer').textContent = String(getRemainingSeconds()).padStart(2, '0');
@@ -536,12 +594,11 @@ function updateTimer() {
   if (newPeriod !== currentPeriod) {
     currentPeriod = newPeriod;
     lastPredictedPeriod = '';
-    // Auto predict after period change
     setTimeout(() => runAutoPrediction(currentPeriod), 100);
   }
 }
 
-// Stats
+// === Stats ===
 function updateStats() {
   const completed = historyData.filter(h => h.status !== 'PENDING');
   const wins = historyData.filter(h => h.status === 'VICTORY').length;
@@ -556,7 +613,7 @@ function updateStats() {
   document.getElementById('rateStat').textContent = rate + '%';
 }
 
-// Check results
+// === Check Results ===
 async function checkResultsLoop() {
   try {
     const res = await fetch(HISTORY_API);
@@ -579,7 +636,7 @@ async function checkResultsLoop() {
   } catch {}
 }
 
-// Website page
+// === Website Page ===
 const searchBarForm = document.getElementById('searchBarForm');
 const searchInputEl = document.getElementById('searchInput');
 const unhideBtnEl = document.getElementById('unhideBtn');
@@ -602,7 +659,7 @@ searchBarForm.addEventListener('submit', function(e) {
 
 unhideBtnEl.addEventListener('click', () => { searchBarForm.classList.remove('hidden'); unhideBtnEl.style.display = 'none'; });
 
-// Init
+// === Init ===
 function initDashboard() {
   const saved = localStorage.getItem('historyData');
   if (saved) historyData = JSON.parse(saved);
@@ -617,7 +674,6 @@ function initDashboard() {
   updateTimer(); updateStats();
   setInterval(updateTimer, 1000);
   setInterval(checkResultsLoop, 5000);
-  // Auto predict on init
   runAutoPrediction(currentPeriod);
 }
 

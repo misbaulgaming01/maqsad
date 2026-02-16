@@ -350,12 +350,11 @@
 </nav>
 
 <script>
-const FIREBASE_DATABASE_URL = 'https://shadow-93ea0-default-rtdb.firebaseio.com';
+const FIREBASE_DATABASE_URL = 'https://maqsad-758501-default-rtdb.firebaseio.com';
 const HISTORY_API = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
 const SERVER_OFFSETS = { server1: 0, server2: 17389, server3: 39821 };
 const LOADING_LABELS = ['ANALYZING...','PROCESSING...','CALCULATING...','PREDICTING...'];
 
-// === Deterministic PRNG ===
 function mulberry32(seed) {
   let t = (seed + 0x6d2b79f5) | 0;
   t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -372,13 +371,10 @@ function hashString(str) {
   return Math.abs(hash);
 }
 
-// === AI Pattern-based Prediction (deterministic, same on all devices) ===
 function getAIPrediction(period, server, historyList) {
   const periodNum = parseInt(period.slice(-5), 10);
   const serverOffset = SERVER_OFFSETS[server] || 0;
-
   const recentResults = (historyList || []).slice(0, 10).map(item => parseInt(item.number, 10));
-
   let bigCount = 0, smallCount = 0, sumNumbers = 0, streak = 0, lastSide = null;
   for (const num of recentResults) {
     const side = num >= 5 ? 'BIG' : 'SMALL';
@@ -386,13 +382,10 @@ function getAIPrediction(period, server, historyList) {
     if (side === 'BIG') bigCount++; else smallCount++;
     if (lastSide === side) streak++; else { streak = 1; lastSide = side; }
   }
-
   const historyHash = recentResults.length > 0 ? hashString(recentResults.join(',')) : 0;
   const combinedSeed = periodNum + serverOffset + historyHash;
-
   const patternScore = mulberry32(combinedSeed);
   const numberSeed = mulberry32(combinedSeed + 7777);
-
   let bigProbability = 0.5;
   if (recentResults.length > 0) {
     if (streak >= 3 && lastSide === 'BIG') bigProbability -= 0.15;
@@ -401,14 +394,12 @@ function getAIPrediction(period, server, historyList) {
     if (total > 0) { const bigRatio = bigCount / total; if (bigRatio > 0.7) bigProbability -= 0.1; else if (bigRatio < 0.3) bigProbability += 0.1; }
     if (recentResults.length > 0) { const avg = sumNumbers / recentResults.length; if (avg > 6) bigProbability -= 0.05; else if (avg < 3) bigProbability += 0.05; }
   }
-
   const side = patternScore < bigProbability ? 'BIG' : 'SMALL';
   const pool = side === 'BIG' ? [5,6,7,8,9] : [0,1,2,3,4];
   const number = pool[Math.floor(numberSeed * pool.length)];
   return { side, number };
 }
 
-// === Utility Functions ===
 function getPeriod() {
   const u = new Date();
   const y = u.getUTCFullYear(), m = String(u.getUTCMonth()+1).padStart(2,'0'), d = String(u.getUTCDate()).padStart(2,'0');
@@ -460,7 +451,6 @@ async function fetchHistory() {
   } catch { return []; }
 }
 
-// === State ===
 let historyData = [];
 let apiHistoryCache = [];
 let selectedServer = localStorage.getItem('selectedServer') || 'server1';
@@ -469,7 +459,6 @@ let lastPredictedPeriod = '';
 let isLoading = false;
 let loadingInterval = null;
 
-// === Bubbles ===
 const bubblesEl = document.getElementById('bubbles');
 [
   {left:'5%',dur:'18s',del:'0s',col:'168,100%,48%'},
@@ -484,7 +473,6 @@ const bubblesEl = document.getElementById('bubbles');
   bubblesEl.appendChild(s);
 });
 
-// === Navigation ===
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
@@ -496,7 +484,6 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => showPage(btn.dataset.page));
 });
 
-// === Login ===
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   const key = document.getElementById('keyInput').value.trim().toUpperCase();
@@ -516,12 +503,10 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   }
 });
 
-// === Logout ===
 document.getElementById('logoutBtn').addEventListener('click', () => {
   sessionStorage.clear(); localStorage.removeItem('historyData'); location.reload();
 });
 
-// === Server Selection ===
 const serverActiveClasses = { server1: 'active-primary', server2: 'active-accent', server3: 'active-secondary' };
 document.getElementById('serverGrid').addEventListener('click', function(e) {
   const card = e.target.closest('.server-card');
@@ -539,7 +524,6 @@ document.getElementById('serverGrid').addEventListener('click', function(e) {
   }
 });
 
-// === Show Result ===
 function showResult(p) {
   const sb = document.getElementById('sideBall');
   sb.textContent = p.side === 'BIG' ? 'B' : 'S';
@@ -550,25 +534,20 @@ function showResult(p) {
   nb.style.cssText = 'width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:bold;color:var(--foreground);box-shadow:0 4px 15px rgba(0,0,0,0.3)';
 }
 
-// === Auto Prediction ===
 async function runAutoPrediction(period) {
   if (isLoading || lastPredictedPeriod === period) return;
   isLoading = true;
   document.getElementById('predictionArea').classList.add('hidden');
   document.getElementById('loadingArea').classList.remove('hidden');
   document.getElementById('resultArea').classList.add('hidden');
-
-  // Fetch fresh history for pattern analysis
   const freshHistory = await fetchHistory();
   if (freshHistory.length > 0) apiHistoryCache = freshHistory;
-
   let step = 0;
   document.getElementById('loadingLabel').textContent = LOADING_LABELS[0];
   loadingInterval = setInterval(() => {
     step = (step + 1) % 4;
     document.getElementById('loadingLabel').textContent = LOADING_LABELS[step];
   }, 1250);
-
   setTimeout(() => {
     clearInterval(loadingInterval);
     const p = getAIPrediction(period, selectedServer, apiHistoryCache);
@@ -577,7 +556,6 @@ async function runAutoPrediction(period) {
     document.getElementById('loadingArea').classList.add('hidden');
     showResult(p);
     document.getElementById('resultArea').classList.remove('hidden');
-
     const entry = { period, predicted: p.side, predictedNum: p.number, status: 'PENDING', server: selectedServer };
     historyData.unshift(entry);
     historyData = historyData.slice(0, 100);
@@ -586,7 +564,6 @@ async function runAutoPrediction(period) {
   }, 5000);
 }
 
-// === Timer & Period ===
 function updateTimer() {
   const newPeriod = getPeriod();
   document.getElementById('timer').textContent = String(getRemainingSeconds()).padStart(2, '0');
@@ -598,7 +575,6 @@ function updateTimer() {
   }
 }
 
-// === Stats ===
 function updateStats() {
   const completed = historyData.filter(h => h.status !== 'PENDING');
   const wins = historyData.filter(h => h.status === 'VICTORY').length;
@@ -613,7 +589,6 @@ function updateStats() {
   document.getElementById('rateStat').textContent = rate + '%';
 }
 
-// === Check Results ===
 async function checkResultsLoop() {
   try {
     const res = await fetch(HISTORY_API);
@@ -636,7 +611,6 @@ async function checkResultsLoop() {
   } catch {}
 }
 
-// === Website Page ===
 const searchBarForm = document.getElementById('searchBarForm');
 const searchInputEl = document.getElementById('searchInput');
 const unhideBtnEl = document.getElementById('unhideBtn');
@@ -659,7 +633,6 @@ searchBarForm.addEventListener('submit', function(e) {
 
 unhideBtnEl.addEventListener('click', () => { searchBarForm.classList.remove('hidden'); unhideBtnEl.style.display = 'none'; });
 
-// === Init ===
 function initDashboard() {
   const saved = localStorage.getItem('historyData');
   if (saved) historyData = JSON.parse(saved);
